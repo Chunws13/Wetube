@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 from pymongo import MongoClient
 from bson.json_util import dumps
 from bson.objectid import ObjectId
-
+import requests
 # 비밀번호 암호화에 이용되는 패키지
 import jwt, datetime, hashlib
 
@@ -18,25 +18,23 @@ db = client.chunws
 def home():
     token_receive = request.cookies.get('token')
     if token_receive is not None:
-        print('여기')
         try:
             # 토큰 받아와서 
             payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
-            print(payload)    
+            
             # payload 값 중 id로 유저 정보 찾기
             user_info = db.wetube_user.find_one({'user_id':payload['id']}, {'_id': False})
+            
+            # 유저 정보 중 nick_name 반환
             nick_name = user_info['nick_name']
-            print('정상')
             return render_template('index.html', status = True, nick_name = nick_name)
         
         except jwt.ExpiredSignatureError:
-            print('만료')
             # 토큰 시간이 만료된 경우
             msg = "로그인 시간이 만료되었습니다."
             return render_template('index.html', statud = False, message = msg)
     
     else:
-        print('여기2')
         return render_template('index.html')
 
 @app.route('/login', methods=["GET", "POST"])
@@ -62,7 +60,7 @@ def login():
             payload = {
                 'id' : user_id,
                 # 만료 시간, UTC 기준 로그인한 시간 + 500초간 유효함
-                'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+                'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=500)
             }
             
             token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
@@ -75,7 +73,7 @@ def login():
 @app.route('/register', methods=["POST", "GET"])
 def register():
     if request.method == "POST":
-        # register.html 파일에서 보내온 회원가입 정보 수신
+        # register.html 파일에서 보내온 회원가입 정보 수신)
         userid_receive = request.form['user_id']
         nickname_receive = request.form['nick_name']
         password1_receive = request.form['password1']
@@ -90,12 +88,12 @@ def register():
         # 동일 id 존재할 때
         if userid_duplication is not None:
             msg = "이미 존재하는 아이디 입니다."
-            return render_template('register.html', message = msg)
+            return jsonify({"status" : False, "message" : msg})
         
         # 비밀번호, 확인용 비밀번호가 일치하지 않을때
         elif password1_receive != password2_receive:
             msg = "비밀번호가 서로 일치하지 않습니다."
-            return render_template('register.html', message = msg)
+            return jsonify({"status" : False, "message" : msg})
         
         # 모든 조건을 만족할 때
         else:
@@ -108,7 +106,7 @@ def register():
             db.wetube_user.insert_one(create_user)
             msg = "회원가입 성공!"
             
-            return redirect(url_for('/login.html', message=msg))
+            return jsonify({"status" : True, "message" : msg})
     
     # GET 요청시 회원가입 페이지로 유도
     else:
