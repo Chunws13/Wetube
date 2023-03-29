@@ -20,20 +20,24 @@
 </head>
 
 <body>
-    {% if token %}
-    <script>
-        $.cookie('token', {{token}})
-    </script>
+    {% if message %}
 
-    <a> {{ user_id }}님, 환영합니다. </a>
+        alert("{{message}}")
+
+    {% endif %}
+    
+    {% if nick_name %}
+
+    <a> {{ nick_name }}님, 환영합니다. </a>
     <a href="/login"> 마이페이지 </a>
     <button onclick="logout()"> 로그아웃 </button>
 
     {% else %}
+
     <a href="/login"> 로그인 </a>
     <a href="/register"> 회원 가입 </a>
+
     {% endif %}
-    {{token}} {{user_id}}
 </body>
 
 </html>
