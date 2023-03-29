@@ -16,7 +16,28 @@ db = client.chunws
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    token_receive = request.cookies.get('token')
+    if token_receive is not None:
+        print('여기')
+        try:
+            # 토큰 받아와서 
+            payload = jwt.decode(token_receive, SECRET_KEY, algorithms=['HS256'])
+            print(payload)    
+            # payload 값 중 id로 유저 정보 찾기
+            user_info = db.wetube_user.find_one({'user_id':payload['id']}, {'_id': False})
+            nick_name = user_info['nick_name']
+            print('정상')
+            return render_template('index.html', status = True, nick_name = nick_name)
+        
+        except jwt.ExpiredSignatureError:
+            print('만료')
+            # 토큰 시간이 만료된 경우
+            msg = "로그인 시간이 만료되었습니다."
+            return render_template('index.html', statud = False, message = msg)
+    
+    else:
+        print('여기2')
+        return render_template('index.html')
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -37,19 +58,19 @@ def login():
         if result_user is not None:
             # payload : 유저 정보와 만료 시간을 담고 있는 정보 
             # 시크릿키 : payload 값을 알기 위한 키
-            # JWt = payload + 시크릿키 ?
+            # JWT = payload + 시크릿키 ?
             payload = {
                 'id' : user_id,
                 # 만료 시간, UTC 기준 로그인한 시간 + 500초간 유효함
-                'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=500)
+                'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
             }
             
             token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-            print('여기까지옴')
-            return render_template('/index.html', token = token, user_id = user_id)
+            return jsonify({'status' : True , 'token' : token})
+        
         # 등록된 유저가 아닌 경우
         else:
-            return render_template('login.html', message = "아이디 / 비밀번호를 확인하세요")
+            return jsonify({'status' : False, 'message' : "아이디 또는 비밀번호가 잘못되었습니다."})
     
 @app.route('/register', methods=["POST", "GET"])
 def register():

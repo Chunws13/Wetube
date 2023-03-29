@@ -6,6 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> 로그인 페이지 </title>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <script>
+        function login(){
+            $.ajax({
+                type: "POST",
+                url : "/login",
+                data: {user_id: $('#user_id').val(), password : $('#password').val()},
+                success: function(response){
+                    if (response['status']){
+                        $.cookie('token', response['token']);
+                        window.location.href = '/'
+                    } else{
+                        alert(response['message'])
+                    }
+                }
+            })
+        }
+    </script>
 </head>
 
 <body>
@@ -16,11 +36,11 @@
     {% endif %}
 
     <!-- 랜딩 오류나서 js 방식으로 구현해야 할듯 -->
-    <form method="POST" action="/login">
-        <input type="text" placeholder="아이디" name ="user_id">
-        <input type="password" placeholder="비밀번호" name = "password">
-        <button type="submit"> 로그인 </button>
-    </form>
+    
+    <input id = "user_id" type="text" placeholder="아이디" name ="user_id">
+    <input id = "password" type="password" placeholder="비밀번호" name = "password">
+    <button onclick = "login()" type="submit"> 로그인 </button>
+    
 </body>
 
 </html>

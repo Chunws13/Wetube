@@ -230,22 +230,24 @@ function save() {
 </head>
 
 <body>
-    {% if token %}
+    {% if message %}
     <script>
-        $.cookie('token', {{token}})
+        alert("{{message}}")
     </script>
+    {% endif %}
+    
+    {% if nick_name %}
 
-    <a> {{ user_id }}님, 환영합니다. </a>
+    <a> {{ nick_name }}님, 환영합니다. </a>
     <a href="/login"> 마이페이지 </a>
     <button onclick="logout()"> 로그아웃 </button>
 
     {% else %}
+
     <a href="/login"> 로그인 </a>
     <a href="/register"> 회원 가입 </a>
+
     {% endif %}
-    {{token}} {{user_id}}
-
-
 
     <div class="mytitle">
     <h1>내 생애 최고의 영화들</h1>
@@ -356,6 +358,7 @@ function save() {
         </div>
     </div>
     </div>
+
 </body>
 
 </html>
