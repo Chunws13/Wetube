@@ -7,6 +7,8 @@ from bson.objectid import ObjectId
 import jwt, datetime, hashlib
 
 from bs4 import BeautifulSoup
+from lxml import etree
+import requests
 
 SECRET_KEY='WETUBE'
 
@@ -106,19 +108,22 @@ def movie_post():
 
     # 여기에 코딩을 해서 meta tag를 먼저 가져와보겠습니다.
     ogtitle = soup.select_one('meta[property="og:title"]')['content']
-    ogdesc = soup.select_one('meta[property="og:description"]')['content']
+    # ogdesc = soup.select_one('meta[property="og:description"]')['title']
     ogimage = soup.select_one('meta[property="og:image"]')['content']
 
+    dom = etree.HTML(str(soup))
+    channel_name = dom.xpath('//*[@id="text"]/a')
+    print(channel_name)
     # 저장 - 예시
     doc = {
         'title' : ogtitle,
-        'desc' : ogdesc,
+        'name' : channel_name,
         'image' : ogimage,
         # 'url' : url_receive, # db에 필요한 정보만 빼오는거라 db에 저장은 필요 없다.
         'comment' : comment_receive,
         'star' : star_receive
     }
-    db.movies.insert_one(doc)
+    db.wetube_con.insert_one(doc)
 
     return jsonify({'msg':'저장 완료!'})
 
@@ -126,7 +131,7 @@ def movie_post():
 def movie_get():
 
     # 여러개 찾기 - 예시 ( _id 값은 제외하고 출력)
-    all_movies = list(db.movies.find({},{'_id':False}))
+    all_movies = list(db.wetube_con.find({},{'_id':False}))
 
     return jsonify({'result' : all_movies})
 
@@ -139,7 +144,7 @@ def movie_put():
     print(comment_new)
     print(star_new)
 
-    db.movies.update_one({}, {'$set': {'comment': comment_new, 'star': star_new}})
+    db.wetube_con.update_one({}, {'$set': {'comment': comment_new, 'star': star_new}})
 
     return jsonify({'msg':'수정 완료!'})
 
@@ -150,7 +155,7 @@ def movie_delete():
         # 삭제할 영화의 title을 가져온다.
         title_receive = request.form['title_give']
         # 삭제할 영화의 title을 가진 영화를 찾는다.
-        db.movies.delete_one({'title': title_receive})
+        db.wetube_con.delete_one({'title': title_receive})
     
         return jsonify({'msg':'삭제 완료!'})
 
