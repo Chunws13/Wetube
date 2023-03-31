@@ -25,13 +25,11 @@ function listing() {
                 let star_repeat = "⭐".repeat(star);
 
                 let temp_html = `<div class="col">
-                                    <div class="card h-100" onclick="movie_detail('${content_id}')">
+                                    <div class="card h-100">
                                         <img src="${image}" class="card-img-top">
                                         <div class="card-body">
                                             <h5 class="card-title">${title}</h5>
                                             <p class="card-text">${desc}</p>
-                                            <p>${star_repeat}</p>
-                                            <p class="mycomment">${comment}</p>
                                         </div>
                                     </div>
                                 </div>`;
