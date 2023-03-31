@@ -45,30 +45,3 @@ function logout() {
     alert('로그아웃 되었습니다.')
     window.location.href = '/'
 }
-
-
-// 모달 창 팝업기
-function movie_detail(id) {
-    // 구현 이전
-    fetch(`/movie/detail/${id}`).then((res) => res.json()).then((data) => {
-        let detail_info = JSON.parse(data['result']);
-        let url = detail_info[0]['url'];
-        let title = detail_info[0]['title'];
-        let desc = detail_info[0]['desc'];
-
-        let window = `
-                    <div id="modal_window" class="modal_window">
-                        <iframe width="560" height="315" src="${url}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>`
-        $('#modal_frame').append(window)
-
-
-        let modal = document.querySelector('#modal_frame')
-        modal.style.display = "flex";
-
-        modal.addEventListener("click", e => {
-            modal.style.display = 'none';
-            $("#modal_frame").empty();
-        })
-    })
-}
