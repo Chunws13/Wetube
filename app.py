@@ -151,14 +151,14 @@ def movie_post():
     writer_receive = request.form['writer_give'] # 마이페이지 구현을 위해 작성자 신규 등록
     comment_receive = request.form['comment_give']
     star_receive = request.form['star_give']
-    print(url_receive, writer_receive)
+    
     headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
     data = requests.get(url_receive, headers=headers)
     soup = BeautifulSoup(data.text, 'html.parser')
 
     # 여기에 코딩을 해서 meta tag를 먼저 가져와보겠습니다.
     ogtitle = soup.select_one('meta[property="og:title"]')['content']
-    ogdesc = soup.select_one('meta[property="og:description"]')['content']
+    ogdesc = soup.select_one('link[itemprop="name"]')['content']
     ogimage = soup.select_one('meta[property="og:image"]')['content']
 
     # 저장 - 예시
